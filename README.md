@@ -2,27 +2,26 @@
 
 > **"Don't just find a place. Find where you fit."**
 > 
-> *An autonomous AI agent that researches unfamiliar cities on your behalf — finding where you should live based on workplace anchors, rental market realities, commute thresholds, and everyday lifestyle essentials.*
+> *MoveWise is an autonomous AI agent that researches unfamiliar cities on your behalf — finding where you should live based on workplace anchors, rental market realities, commute thresholds, and everyday lifestyle essentials.*
 
 ---
 
-## 🏆 SerpApi India Hackathon 2026 — AI Agents Track
-
-MoveWise was engineered from the ground up for the **AI Agents Track** of the SerpApi India Hackathon 2026. 
+## 🧭 Overview
 
 Traditional real estate platforms are glorified search boxes with filters: they force users to guess neighborhood names, browse through unverified listings, open 15 browser tabs to cross-check gym distances and supermarkets, and ignore peak-hour road gridlock.
 
 **MoveWise replaces manual browsing with an autonomous research agent.**
-You provide your natural language constraints; MoveWise breaks them into sequential research tasks, interrogates **SerpApi** across multiple engines (Google Maps / Local Places, Google Organic Search, Google Hotels), extracts verified facts, normalizes ambiguous data, scores neighborhoods with a transparent mathematical model, and produces an actionable, trade-off-aware shortlist.
+
+You describe your relocation goals and constraints in natural language; MoveWise breaks them into sequential research tasks, interrogates multi-engine real-time search providers (Google Maps / Local Places, Google Organic Search, Google Hotels), extracts verified facts, normalizes ambiguous data, scores neighborhoods with a transparent mathematical model, and produces an actionable, trade-off-aware shortlist.
 
 ```mermaid
 flowchart TD
-    User(["User Request (Natural Language)"]) --> LLM["Intent & Constraint Extraction (Gemini 3.5 Flash-Lite)"]
+    User(["User Request (Natural Language)"]) --> LLM["Intent & Dynamic Constraint Extraction (Gemini 3.5 Flash-Lite)"]
     LLM --> Plan["Agent Research Plan Decomposition"]
     
-    subgraph "SerpApi Multi-Engine Orchestration"
+    subgraph "Multi-Engine External Research Layer"
         Plan --> E1["Google Search Engine (Rental Market Benchmarks & Locality Guides)"]
-        Plan --> E2["Google Maps / Local Engine (Gyms, Restaurants, Groceries, Metro)"]
+        Plan --> E2["Google Maps / Local Engine (Gyms, Restaurants, Groceries, Metro, Custom Places)"]
         Plan --> E3["Google Hotels Engine (First-Week Transitional Accommodation)"]
     end
     
@@ -34,44 +33,50 @@ flowchart TD
     Results --> MapView["Interactive Leaflet Map (Pins for Office, Hoods, Gyms, Transit)"]
     Results --> Matrix["Side-by-Side Factor Comparison Table"]
     Results --> Stays["First-Week Hotels Widget"]
-    Results --> RefineChat["Follow-up Conversational Refinement ('Increase budget to 30k')"]
+    Results --> RefineChat["Follow-up Conversational Refinement ('What if I need a hospital within 2km?')"]
     RefineChat --> Scoring
 ```
 
 ---
 
-## 🌟 Core Features
+## 🌟 Core Capabilities
 
-### 1. Natural Language Constraint Extraction
-- Type freeform queries like:
-  > *"I'm moving to Bangalore for a ₹15 LPA software job. My office is in Whitefield. My monthly housing budget is ₹25,000. I want a commute under 30 minutes and a gym within 2 km."*
-- Powered by **Google Gemini** (defaulting to `gemini-3.5-flash-lite` via the official `@google/genai` SDK) with an intelligent semantic heuristic fallback when running offline or without an API key.
+### 1. Dynamic Parameter Generation & Freeform Extraction
+Users aren't constrained by rigid forms or fixed drop-downs. Type freeform prompts such as:
+> *"I'm moving to Bangalore for a ₹15 LPA software job. My office is in Whitefield. My monthly housing budget is ₹25,000. I want a commute under 30 minutes, a gym within 2 km, and a school nearby 1 km."*
 
-### 2. Autonomous Multi-Engine SerpApi Research
-SerpApi makes a **material contribution** at every stage of the pipeline:
-- **Google Maps / Local Engine (`google_maps`)**: Discovers verified fitness centers (Cult.fit, Gold's, Snap Fitness), dining hubs, supermarkets (Star Bazaar, Nature's Basket), and Purple Line metro stations with exact geographic distances and user ratings.
+- **Arbitrary Custom Requirements**: Extracts any custom lifestyle constraint (schools, hospitals, daycares, pet parks, coworking spaces, sports facilities) with target radii (e.g. `1km`, `2km`).
+- **Gemini 3.5 Flash-Lite by Default**: Uses the official `@google/genai` SDK with `gemini-3.5-flash-lite`, accompanied by a robust semantic parser fallback.
+
+### 2. Multi-City & Locality Generalization
+MoveWise is not bound to a single city. It dynamically maps candidate localities, coordinates, commute corridors, and rent ranges for any target workplace:
+- **Major Tech Hubs Supported**: Bangalore (Whitefield, Bellandur, Electronic City), Hyderabad (Hitec City, Gachibowli), Pune (Hinjawadi, Baner), Mumbai (BKC, Powai), Gurgaon/Delhi-NCR (Cyber City, Golf Course Road), Chennai (OMR), and global cities.
+- **Dynamic Centroid Mapping**: Interactive Leaflet maps automatically compute the centroid across discovered neighborhoods and display tailored pins for any location.
+
+### 3. Multi-Engine Autonomous Research
+- **Google Maps / Local Engine (`google_maps`)**: Discovers verified fitness centers (Cult.fit, Gold's Gym, Snap Fitness), dining hubs, supermarkets (Star Bazaar, Nature's Basket), metro stations, and custom places (e.g., *The Deens Academy*, *Manipal Hospital*) with exact distances and ratings.
 - **Google Search Engine (`google`)**: Synthesizes verified rental market ranges (1BHK/2BHK) and locality guides from real estate listings.
-- **Google Hotels Engine (`google_hotels`)**: Researches first-week temporary stays near the office anchor with live nightly rates and direct booking links.
+- **Google Hotels Engine (`google_hotels`)**: Researches first-week temporary stays near the office anchor with live nightly rates, check-in dates, and direct booking links.
 
-### 3. Transparent Weighted Matching Model
-No black-box hallucinations. MoveWise scores each neighborhood using an explicit weighted formula:
+### 4. Transparent Weighted Matching Model
+MoveWise eliminates black-box hallucinations by scoring every candidate neighborhood on a 100-point scale:
 ```text
-Budget fit             30%
-Commute                25%
-Gym proximity          15%
-Food & dining          10%
-Groceries & essentials 10%
-Public transit / Metro 10%
+Budget fit             30% base
+Commute                25% base
+Gym proximity          15% base
+Food & dining          10% base
+Groceries & essentials 10% base
+Public transit / Metro 10% base
+Custom constraints     Dynamically allocated (10–15% each, proportionally normalized)
 ```
-- Each card highlights explicit **"Why this area matched"** points and honest **"Trade-offs to consider"** (e.g., peak-hour bottlenecks or water tanker reliance).
-- If gym is marked optional or removed during follow-up, weights automatically redistribute proportionally.
+- Each neighborhood card highlights **"Why this area matched"** checklists, dynamic distance compliance badges (`✓ School: within your 1 km limit (0.8 km away)`), and honest **"Trade-offs to consider"** (peak traffic bottlenecks, water supply reliance, etc.).
 
-### 4. Interactive Locality Map
+### 5. Interactive Locality Map
 - Powered by Leaflet & OpenStreetMap.
-- Renders custom SVG pins for Workplace (Red), Candidate Neighborhoods (Teal with rank badges), Gyms (Purple), Restaurants (Orange), Transit (Indigo), and Hotels (Emerald).
+- Features custom SVG pins for Workplace (Red), Candidate Neighborhoods (Teal with rank badges), Gyms (Purple), Restaurants (Orange), Transit (Indigo), and Hotels (Emerald).
 - Clicking markers displays detailed place popups and links directly to Google Maps.
 
-### 5. Side-by-Side Comparison Matrix
+### 6. Side-by-Side Comparison Matrix
 - Direct side-by-side comparison of candidate localities across:
   - 1BHK / 2BHK Estimated Rent
   - Peak vs Normal Office Commute
@@ -79,29 +84,27 @@ Public transit / Metro 10%
   - Dining & Cafe Density
   - Grocery Walkability & Quick-Commerce Hubs
   - Metro Station Proximity
+  - Custom Amenities (Schools, Hospitals, Daycares compliance)
   - Overall Weighted Fit Score
 
-### 6. First-Week Transitional Housing
+### 7. First-Week Transitional Housing
 - *"Need somewhere to stay while you search?"*
 - Curated hotels near the office with guest ratings, amenities (WiFi, desk, breakfast), nightly prices, and direct booking links.
 
-### 7. Conversational Follow-up Refinement
-- Relocation plans are iterative. Users can refine parameters directly in chat:
-  - *"Increase my budget to ₹30k"*
-  - *"I don't care about gyms anymore"*
-  - *"I want something closer to the metro"*
-  - *"Show me cheaper areas"*
-- The agent interprets the change, recalculates scores, and dynamically reorganizes the shortlist with a personalized explanation.
+### 8. Conversational Follow-Up Refinement
+Relocation decisions evolve. Users can talk to MoveWise to adjust their requirements on the fly:
+- *"What if I also need a hospital within 2km?"*
+- *"Increase my monthly budget to ₹30,000"*
+- *"I don't care about gyms anymore"*
+- *"I want something closer to the metro"*
+- *"Remove the school requirement"*
 
-### 8. Strict "Zero Fabricated Data" Principle
-- Rental listings are explicitly marked as **verified area benchmark ranges** with source citations.
+The agent parses the change, updates custom factors, re-attaches verified amenities, recalculates match scores, and reorganizes the shortlist with a clear explanation of how the recommendation adapted.
+
+### 9. Strict "Zero Fabricated Data" Principle
+- Rental listings are explicitly presented as **verified area benchmark ranges** with source citations.
 - Commute times reflect transit and peak-hour road traffic caveats.
 - Reviews clearly distinguish between observed community sentiment and agent analysis.
-
-### 9. Hackathon-Safe Demo Mode
-- Includes a verified snapshot dataset captured from live SerpApi queries for Bangalore's Whitefield tech corridor.
-- Clearly stamped with: **`Demo data — last researched on September 2026`**.
-- Ensures live presentations never fail due to Wi-Fi outages or API quota limits.
 
 ---
 
@@ -109,11 +112,11 @@ Public transit / Metro 10%
 
 | Layer | Technology |
 |---|---|
-| **Framework** | Next.js 15 (App Router, Server Actions, API Routes) |
-| **Language** | TypeScript (Strict mode, zero compilation errors) |
-| **Styling** | Tailwind CSS with custom brand accents |
+| **Framework** | Next.js 15 (App Router, Server Actions, Route Handlers) |
+| **Language** | TypeScript (Strict mode, 100% type-checked) |
+| **Styling** | Tailwind CSS with custom theme variables |
 | **Icons** | Lucide React |
-| **Maps** | Leaflet + OpenStreetMap (SSR-safe dynamic loader) |
+| **Maps** | Leaflet + OpenStreetMap (SSR-safe client hydration) |
 | **AI / LLM** | Google Gemini (`gemini-3.5-flash-lite`) via `@google/genai` SDK |
 | **External Search** | SerpApi (Google Maps, Google Search, Google Hotels) |
 | **Caching** | Server-side in-memory cache with TTL and query logging |
@@ -123,7 +126,7 @@ Public transit / Metro 10%
 ## 📂 Project Structure
 
 ```
-c:\Users\Pankaj\Desktop\MoveWise\
+MoveWise/
 ├── app/
 │   ├── layout.tsx                     # Global HTML layout with Leaflet CSS
 │   ├── globals.css                    # Tailwind CSS base styles & variables
@@ -141,44 +144,45 @@ c:\Users\Pankaj\Desktop\MoveWise\
 │           └── test/route.ts          # SerpApi connection test endpoint
 ├── components/
 │   ├── navigation/
-│   │   └── Navbar.tsx                 # Header with demo triggers & settings modal
+│   │   └── Navbar.tsx                 # Header with navigation & settings modal
 │   ├── landing/
-│   │   ├── Hero.tsx                   # Hero section with 1-click scenario preview
-│   │   ├── HowItWorks.tsx             # 6-step loop & SerpApi spotlight
+│   │   ├── Hero.tsx                   # Hero section with interactive prompt preview
+│   │   ├── HowItWorks.tsx             # 6-step loop & research spotlight
 │   │   └── ValueProps.tsx             # Agent vs traditional portal comparison
 │   ├── questionnaire/
 │   │   ├── NaturalLanguageInput.tsx   # Freeform prompt extractor
-│   │   └── StructuredForm.tsx         # Fine-grained sliders & toggles
+│   │   └── StructuredForm.tsx         # Interactive sliders, toggles & dynamic custom requirements
 │   ├── agent/
 │   │   ├── AgentActivityPanel.tsx     # Dynamic progress tracker & query terminal
 │   │   └── ReasoningAudit.tsx         # Collapsible reasoning log & telemetry
 │   ├── results/
-│   │   ├── SummaryHeader.tsx          # Relocation brief & demo badge
-│   │   ├── NeighborhoodCard.tsx       # Rich recommendation cards with trade-offs
-│   │   ├── ComparisonTable.tsx        # Side-by-side factor matrix
+│   │   ├── SummaryHeader.tsx          # Relocation brief & constraints summary
+│   │   ├── NeighborhoodCard.tsx       # Recommendation cards with trade-offs & custom badges
+│   │   ├── ComparisonTable.tsx        # Side-by-side factor matrix including custom criteria
 │   │   ├── NeighborhoodDetailModal.tsx# Verified places & review themes modal
 │   │   ├── HotelsSection.tsx          # First-week stay options
 │   │   ├── RefinementBar.tsx          # Conversational refinement input
 │   │   └── SourceCitations.tsx        # Transparent external source links
 │   ├── maps/
-│   │   ├── InteractiveMap.tsx         # Leaflet map with custom SVG pins
+│   │   ├── InteractiveMap.tsx         # Leaflet map with custom SVG pins & auto-centering
 │   │   └── MapFallback.tsx            # Clean location grid fallback
 │   └── settings/
 │       └── ApiKeysModal.tsx           # In-browser API key manager & Demo Mode toggle
 ├── lib/
 │   ├── agent/
-│   │   ├── planner.ts                 # Task decomposition
+│   │   ├── planner.ts                 # Task decomposition & dynamic requirement planning
 │   │   ├── researcher.ts              # Multi-engine execution coordinator
-│   │   ├── scoring.ts                 # 100-point weighted matching model
-│   │   └── recommender.ts             # Trade-offs & refinement engine
+│   │   ├── scoring.ts                 # 100-point weighted matching model & dynamic rebalancing
+│   │   ├── generator.ts               # Multi-city locality synthesis & custom place attachment
+│   │   └── recommender.ts             # Conversational follow-up & refinement engine
 │   ├── serpapi/
 │   │   ├── client.ts                  # Server-side HTTP client with caching & error handling
 │   │   ├── local.ts                   # Google Maps / Local places queries
 │   │   ├── search.ts                  # Google Search rent & locality queries
 │   │   ├── hotels.ts                  # Google Hotels temporary stay queries
-│   │   └── demoData.ts                # Verified Bangalore Whitefield snapshot
+│   │   └── demoData.ts                # Verified locality snapshots & presets
 │   ├── llm/
-│   │   └── client.ts                  # Gemini 3.5 Flash-Lite integration & heuristic fallback
+│   │   └── client.ts                  # Gemini 3.5 Flash-Lite integration & dynamic heuristic parser
 │   └── utils.ts                       # Currency and distance formatters
 ├── types/
 │   └── relocation.ts                  # Shared TypeScript data models
@@ -198,7 +202,7 @@ c:\Users\Pankaj\Desktop\MoveWise\
 
 ### 1. Clone & Install Dependencies
 ```bash
-git clone https://github.com/your-username/MoveWise.git
+git clone https://github.com/<your-username>/MoveWise.git
 cd MoveWise
 npm install
 ```
@@ -209,7 +213,7 @@ Copy `.env.example` to `.env.local`:
 cp .env.example .env.local
 ```
 
-Fill in your API keys (optional: MoveWise runs out-of-the-box in Demo Mode without any keys):
+Fill in your API keys (optional: MoveWise runs out-of-the-box with pre-seeded locality indices without any keys):
 ```env
 # SerpApi API Key (for live Google Maps, Search, and Hotels research)
 SERPAPI_KEY=your_serpapi_key_here
@@ -221,11 +225,11 @@ GEMINI_API_KEY=your_gemini_api_key_here
 GEMINI_MODEL=gemini-3.5-flash-lite
 ```
 
-> **Note:** API keys can also be configured interactively from the web UI by clicking the **Settings (gear icon)** in the top right navigation bar. Keys are stored locally in your browser session and never committed or shared.
+> **Tip:** API keys can also be entered interactively from the web UI by clicking the **Settings (gear icon)** in the top navigation bar. Keys are stored locally in your browser session and never sent to external servers or committed to git.
 
 ### 3. Run Locally
 ```bash
-# Development mode
+# Development server
 npm run dev
 
 # Or production build & start
@@ -236,31 +240,36 @@ Open **[http://localhost:3000](http://localhost:3000)** in your browser.
 
 ---
 
-## 🎬 3-Minute Hackathon Demo Script
+## 🎬 Application Walkthrough & User Flow
 
-Follow this scripted flow for a pitch or demo:
-
-| Time | Action | What to Highlight |
-|---|---|---|
-| **0:00 - 0:20** | Open `http://localhost:3000` | Show the landing page copy: *"Don't just find a place. Find where you fit."* Explain that MoveWise is an autonomous agent, not a static search filter. |
-| **0:20 - 0:40** | Click **"Try Demo (Bangalore Scenario)"** or type the natural language prompt | Show how Gemini 3.5 Flash-Lite extracts `City: Bangalore`, `Office: Whitefield`, `Budget: ₹25,000`, `Commute: <30m`, `Gym: <2km`. |
-| **0:40 - 1:15** | Click **"Launch MoveWise Agent"** | Watch the **Agent Activity Panel** animate through 9 distinct tasks (Understanding requirements → Finding candidate areas → Querying SerpApi for rent benchmarks → Scanning Google Maps for Cult.fit / Gold's Gym → Checking Purple Line metro stops → Sourcing hotels → Scoring). |
-| **1:15 - 1:45** | Review Recommended Neighborhoods | Point out the top recommendations: **Kundalahalli Colony**, **Kadugodi**, **Hoodi**, **Nallurhalli**, **Brookefield**. Highlight the transparent score breakdowns, verified rent ranges, and honest trade-offs. |
-| **1:45 - 2:10** | Explore Map & Places Modal | Click a neighborhood card to center the interactive Leaflet map. Click **"Explore Verified Places & Reviews"** to view real Google Maps ratings for gyms and cafes, alongside community sentiment themes (👍 vs ⚠️). |
-| **2:10 - 2:30** | Inspect Comparison Matrix & First-Week Hotels | Show the side-by-side factor matrix. Show the **"Need somewhere to stay while you search?"** hotel recommendations with nightly rates and direct links. |
-| **2:30 - 2:50** | Conversational Refinement | In the follow-up chat, click **"Increase my budget to ₹30k"** or **"I don't care about gyms anymore"**. Watch the agent recalculate the rankings and explain how the recommendation adjusted in real time. |
-| **2:50 - 3:00** | Open Sources & Reasoning Audit | Expand **"How MoveWise Researched This"** to show the query telemetry (SerpApi calls, ground truth verification, latency, zero hallucinations). |
+1. **Homepage (`/`)**:
+   - Understand the core premise: *"Don't just find a place. Find where you fit."*
+   - Review the comparison of autonomous agent research vs manual portal browsing.
+2. **Relocation Questionnaire (`/plan`)**:
+   - Provide a natural language prompt or click an example scenario.
+   - Adjust fine-tuning controls: monthly housing budget, commute thresholds, transit preferences, and add custom requirements (+ School, + Hospital, + Daycare, + Pet Park, + Coworking, + Sports).
+   - Click **"Launch MoveWise Agent →"** to watch the autonomous research pipeline execute in real-time.
+3. **Decision Dashboard (`/results`)**:
+   - Review ranked neighborhood cards with overall match scores (0–100), transparent breakdown bars, and custom amenity badges.
+   - Explore the **Interactive Leaflet Map** rendering pins for Workplace, Neighborhoods, Gyms, Restaurants, Transit, and Hotels.
+   - Examine the **Side-by-Side Comparison Matrix** for multi-factor evaluation.
+   - Click **"Explore Verified Places & Reviews"** to inspect star ratings, verified addresses, and community sentiment (pros vs trade-offs).
+   - Browse **First-Week Temporary Hotels** with prices and direct booking links.
+4. **Conversational Refinement**:
+   - Use the bottom refinement bar to adjust your search in plain English (*"What if I also need a hospital within 2km?"* or *"Increase my budget to ₹30,000"*).
+   - Watch the agent update criteria, re-evaluate custom place distances, and re-rank candidate neighborhoods dynamically.
 
 ---
 
-## ⚖️ Limitations & Data Principles
+## ⚖️ Data Integrity & Principles
 
-1. **Estimated Rent Ranges**: MoveWise displays verified median market ranges synthesized from public real estate listings. Because specific rental agreements depend on landlord negotiations and lease dates, MoveWise never invents false unit-level pricing.
-2. **Commute Feasibility**: Commute estimates account for normal vs peak-hour congestion corridors (such as Kundalahalli Gate or Borewell Road) rather than assuming ideal speed limits.
+1. **Estimated Rent Ranges**: MoveWise displays verified median market ranges synthesized from real estate listing trends. MoveWise never invents false unit-level pricing.
+2. **Realistic Commute Estimates**: Commute estimates account for normal vs peak-hour congestion corridors rather than assuming ideal speed limits.
 3. **Review Attribution**: Community sentiment is categorized into observed themes (👍 Pro, ⚠️ Trade-off) from verified place reviews.
+4. **Privacy First**: API keys configured via the UI remain strictly inside your browser session.
 
 ---
 
 ## 📜 License
 
-Created for the **SerpApi India Hackathon 2026**. Licensed under the Apache-2.0 License.
+Licensed under the [MIT License](LICENSE).
